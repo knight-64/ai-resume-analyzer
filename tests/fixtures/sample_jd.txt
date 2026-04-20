@@ -1,0 +1,41 @@
+Senior Full Stack Engineer
+
+About the Role:
+We are seeking an experienced Senior Full Stack Engineer to join our growing engineering team. You will be responsible for designing and implementing scalable backend services and modern frontend applications for our SaaS platform.
+
+Key Responsibilities:
+- Design and develop microservices architecture using modern technologies
+- Build responsive web applications using React and modern JavaScript frameworks
+- Implement and optimize relational and NoSQL databases
+- Establish CI/CD pipelines and deployment automation
+- Mentor junior developers and participate in code reviews
+- Collaborate with product and design teams to deliver features
+- Ensure code quality through comprehensive testing
+
+Required Qualifications:
+- 5+ years of professional software development experience
+- Expert-level proficiency in JavaScript/TypeScript
+- Strong experience with React for frontend development
+- Backend development experience with Node.js or Python
+- Database design and optimization expertise (SQL and NoSQL)
+- Experience with AWS services (EC2, S3, RDS)
+- Strong understanding of REST API design and development
+- Experience with containerization (Docker) and orchestration
+- Git version control proficiency
+- Excellent communication and team collaboration skills
+
+Nice to Have:
+- Kubernetes experience
+- Experience with GraphQL
+- Machine learning or AI integration experience
+- Open source contributions
+- AWS certification
+
+Compensation & Benefits:
+- Competitive salary: $120,000 - $180,000 based on experience
+- Comprehensive health insurance
+- Professional development budget
+- Remote work flexibility
+- Stock options
+
+Location: San Francisco, CA (Hybrid)

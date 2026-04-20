@@ -1,0 +1,47 @@
+John Smith
+Email: john.smith@email.com | Phone: (555) 123-4567 | LinkedIn: linkedin.com/in/johnsmith
+
+PROFESSIONAL SUMMARY
+Experienced Full Stack Developer with 5 years of expertise in building scalable web applications using React, Node.js, and AWS. Strong background in database design, REST API development, and team collaboration. Passionate about clean code and agile methodologies.
+
+TECHNICAL SKILLS
+Languages: JavaScript, Python, TypeScript, SQL, HTML/CSS
+Frontend: React, Vue.js, Redux, Material-UI
+Backend: Node.js, Express, Django, FastAPI
+Databases: PostgreSQL, MongoDB, MySQL
+Cloud & DevOps: AWS (EC2, S3, RDS), Docker, Kubernetes, CI/CD pipelines
+Tools: Git, Jenkins, Jira, Webpack, Postman
+
+PROFESSIONAL EXPERIENCE
+
+Senior Software Engineer | TechCorp Inc. | Jan 2021 - Present
+- Led development of microservices architecture serving 100K+ users
+- Implemented automated testing suite increasing code coverage from 45% to 85%
+- Mentored 3 junior developers, improving team productivity by 30%
+- Optimized database queries reducing API response time by 40%
+
+Full Stack Developer | WebSolutions LLC | Jun 2019 - Dec 2020
+- Developed responsive web applications using React and Node.js
+- Designed and implemented RESTful APIs using Express and PostgreSQL
+- Collaborated with product team to deliver features on schedule
+- Implemented Docker containerization reducing deployment time by 60%
+
+Junior Developer | StartupXYZ | Jan 2019 - May 2019
+- Assisted in building customer-facing React components
+- Participated in code reviews and learned best practices
+- Fixed bugs and contributed to sprint goals
+
+PROJECTS
+Open Source Contributions:
+- Contributed to React ecosystem libraries with 50+ merged pull requests
+- Built CLI tool for AWS automation downloaded 10K+ times
+
+Portfolio Project:
+- Built full-stack todo application with real-time collaboration features
+- Repository: github.com/johnsmith/projects
+
+EDUCATION
+Bachelor of Science in Computer Science | State University | 2018
+
+CERTIFICATIONS
+AWS Certified Solutions Architect - Associate | 2020
