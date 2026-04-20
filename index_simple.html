@@ -930,10 +930,58 @@
             margin-bottom: 2px;
         }
 
-        .knight-label {
+        .resume-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+            color: var(--text);
+        }
+
+        .resume-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .resume-input::placeholder {
+            color: var(--text-light);
+        }
+
+        .experience-item, .education-item {
+            background: var(--light);
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary);
+            position: relative;
+        }
+
+        .experience-item .resume-input, .education-item .resume-input {
+            margin-bottom: 10px;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
             font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .remove-btn:hover {
+            background: #fecaca;
         }
 
         @media (max-width: 768px) {
@@ -995,6 +1043,12 @@
                 font-size: 18px;
             }
         }
+
+        @media (max-width: 1200px) {
+            div[style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1033,6 +1087,9 @@
             <div class="tabs">
                 <button class="tab-button active" onclick="switchTab('analyzer')">
                     <i class="fas fa-chart-line"></i> Resume Analyzer
+                </button>
+                <button class="tab-button" onclick="switchTab('maker')">
+                    <i class="fas fa-edit"></i> Resume Maker
                 </button>
             </div>
 
@@ -1138,6 +1195,91 @@
                     </div>
                 </div>
             </div>
+
+            <div id="maker-tab" class="tab-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
+                    <!-- Left Side: Form -->
+                    <div>
+                        <!-- Personal Info -->
+                        <div class="form-group">
+                            <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-user"></i> Personal Information</h3>
+                            <input type="text" id="fullName" placeholder="Full Name" class="resume-input" style="margin-bottom: 12px;">
+                            <input type="email" id="email" placeholder="Email" class="resume-input" style="margin-bottom: 12px;">
+                            <input type="tel" id="phone" placeholder="Phone Number" class="resume-input" style="margin-bottom: 12px;">
+                            <input type="text" id="location" placeholder="City, Country" class="resume-input" style="margin-bottom: 12px;">
+                            <textarea id="summary" placeholder="Professional Summary" class="resume-input" style="min-height: 100px;"></textarea>
+                        </div>
+
+                        <!-- Experience -->
+                        <div class="form-group">
+                            <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-briefcase"></i> Experience</h3>
+                            <div id="experienceList"></div>
+                            <button class="btn-secondary" onclick="addExperience()">
+                                <i class="fas fa-plus"></i> Add Experience
+                            </button>
+                        </div>
+
+                        <!-- Education -->
+                        <div class="form-group">
+                            <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-graduation-cap"></i> Education</h3>
+                            <div id="educationList"></div>
+                            <button class="btn-secondary" onclick="addEducation()">
+                                <i class="fas fa-plus"></i> Add Education
+                            </button>
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="form-group">
+                            <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-star"></i> Skills</h3>
+                            <input type="text" id="skillsInput" placeholder="Enter skills separated by commas" class="resume-input">
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Preview -->
+                    <div>
+                        <div style="position: sticky; top: 20px;">
+                            <div class="result-card" style="border: none; background: white; padding: 40px;">
+                                <div id="resumePreview" style="font-family: 'Segoe UI', sans-serif;">
+                                    <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #667eea; padding-bottom: 20px;">
+                                        <h1 id="previewName" style="margin: 0; font-size: 28px; color: var(--text);">Your Name</h1>
+                                        <p id="previewContact" style="margin: 5px 0; color: var(--text-light); font-size: 13px;">
+                                            <span id="pEmail">email@example.com</span> |
+                                            <span id="pPhone">(123) 456-7890</span> |
+                                            <span id="pLocation">City, Country</span>
+                                        </p>
+                                    </div>
+
+                                    <div id="previewSummary" style="margin-bottom: 20px; display: none;">
+                                        <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">PROFESSIONAL SUMMARY</h3>
+                                        <p style="font-size: 13px; line-height: 1.6; color: var(--text);"></p>
+                                    </div>
+
+                                    <div id="previewExperience" style="margin-bottom: 20px; display: none;">
+                                        <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">EXPERIENCE</h3>
+                                    </div>
+
+                                    <div id="previewEducation" style="margin-bottom: 20px; display: none;">
+                                        <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">EDUCATION</h3>
+                                    </div>
+
+                                    <div id="previewSkills" style="display: none;">
+                                        <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">SKILLS</h3>
+                                        <div id="previewSkillsList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="button-group" style="margin-top: 20px;">
+                                <button class="btn-primary" onclick="downloadResume()">
+                                    <i class="fas fa-download"></i> Download PDF
+                                </button>
+                                <button class="btn-secondary" onclick="clearMaker()">
+                                    <i class="fas fa-trash"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1177,6 +1319,132 @@
     <script>
         let currentChatSessionId = null;
 
+        // Resume Maker Functions
+        function addExperience() {
+            const id = Date.now();
+            const html = `
+                <div class="experience-item" id="exp-${id}">
+                    <button class="remove-btn" onclick="removeExperience(${id})"><i class="fas fa-trash"></i> Remove</button>
+                    <input type="text" class="resume-input exp-company" placeholder="Company Name">
+                    <input type="text" class="resume-input exp-title" placeholder="Job Title">
+                    <input type="text" class="resume-input exp-period" placeholder="Jan 2020 - Dec 2021">
+                    <textarea class="resume-input exp-desc" placeholder="Job description and achievements" style="min-height: 80px;"></textarea>
+                </div>
+            `;
+            document.getElementById('experienceList').innerHTML += html;
+            updateResumePreview();
+        }
+
+        function removeExperience(id) {
+            document.getElementById('exp-' + id).remove();
+            updateResumePreview();
+        }
+
+        function addEducation() {
+            const id = Date.now();
+            const html = `
+                <div class="education-item" id="edu-${id}">
+                    <button class="remove-btn" onclick="removeEducation(${id})"><i class="fas fa-trash"></i> Remove</button>
+                    <input type="text" class="resume-input edu-school" placeholder="School/University">
+                    <input type="text" class="resume-input edu-degree" placeholder="Degree (e.g., Bachelor of Science)">
+                    <input type="text" class="resume-input edu-field" placeholder="Field of Study">
+                    <input type="text" class="resume-input edu-year" placeholder="Graduation Year">
+                </div>
+            `;
+            document.getElementById('educationList').innerHTML += html;
+            updateResumePreview();
+        }
+
+        function removeEducation(id) {
+            document.getElementById('edu-' + id).remove();
+            updateResumePreview();
+        }
+
+        function updateResumePreview() {
+            const name = document.getElementById('fullName').value || 'Your Name';
+            const email = document.getElementById('email').value || 'email@example.com';
+            const phone = document.getElementById('phone').value || '(123) 456-7890';
+            const location = document.getElementById('location').value || 'City, Country';
+            const summary = document.getElementById('summary').value;
+
+            document.getElementById('previewName').textContent = name;
+            document.getElementById('pEmail').textContent = email;
+            document.getElementById('pPhone').textContent = phone;
+            document.getElementById('pLocation').textContent = location;
+
+            if (summary) {
+                document.getElementById('previewSummary').style.display = 'block';
+                document.getElementById('previewSummary').querySelector('p').textContent = summary;
+            } else {
+                document.getElementById('previewSummary').style.display = 'none';
+            }
+
+            const experiences = document.querySelectorAll('.experience-item');
+            if (experiences.length > 0) {
+                let expHtml = '<h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">EXPERIENCE</h3>';
+                experiences.forEach(exp => {
+                    const company = exp.querySelector('.exp-company').value;
+                    const title = exp.querySelector('.exp-title').value;
+                    const period = exp.querySelector('.exp-period').value;
+                    const desc = exp.querySelector('.exp-desc').value;
+
+                    if (company || title) {
+                        expHtml += `<div style="margin-bottom: 12px;"><div style="display: flex; justify-content: space-between;"><strong style="font-size: 13px; color: var(--text);">${title || 'Position'}</strong><span style="font-size: 12px; color: var(--text-light);">${period}</span></div><p style="margin: 4px 0; font-size: 12px; color: var(--text-light);">${company}</p><p style="margin: 4px 0; font-size: 12px; color: var(--text); line-height: 1.5;">${desc}</p></div>`;
+                    }
+                });
+                document.getElementById('previewExperience').innerHTML = expHtml;
+                document.getElementById('previewExperience').style.display = 'block';
+            } else {
+                document.getElementById('previewExperience').style.display = 'none';
+            }
+
+            const educations = document.querySelectorAll('.education-item');
+            if (educations.length > 0) {
+                let eduHtml = '<h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">EDUCATION</h3>';
+                educations.forEach(edu => {
+                    const school = edu.querySelector('.edu-school').value;
+                    const degree = edu.querySelector('.edu-degree').value;
+                    const field = edu.querySelector('.edu-field').value;
+                    const year = edu.querySelector('.edu-year').value;
+
+                    if (school || degree) {
+                        eduHtml += `<div style="margin-bottom: 12px;"><strong style="font-size: 13px; color: var(--text);">${degree || 'Degree'}</strong><p style="margin: 4px 0; font-size: 12px; color: var(--text-light);">${school}${field ? ' - ' + field : ''}</p><p style="margin: 4px 0; font-size: 12px; color: var(--text-light);">Graduated: ${year}</p></div>`;
+                    }
+                });
+                document.getElementById('previewEducation').innerHTML = eduHtml;
+                document.getElementById('previewEducation').style.display = 'block';
+            } else {
+                document.getElementById('previewEducation').style.display = 'none';
+            }
+
+            const skills = document.getElementById('skillsInput').value;
+            if (skills) {
+                const skillArray = skills.split(',').map(s => s.trim()).filter(s => s);
+                const skillHtml = skillArray.map(skill => `<span style="background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">${skill}</span>`).join('');
+                document.getElementById('previewSkillsList').innerHTML = skillHtml;
+                document.getElementById('previewSkills').style.display = 'block';
+            } else {
+                document.getElementById('previewSkills').style.display = 'none';
+            }
+        }
+
+        function downloadResume() {
+            window.print();
+        }
+
+        function clearMaker() {
+            document.getElementById('fullName').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('location').value = '';
+            document.getElementById('summary').value = '';
+            document.getElementById('skillsInput').value = '';
+            document.getElementById('experienceList').innerHTML = '';
+            document.getElementById('educationList').innerHTML = '';
+            updateResumePreview();
+            showSuccess('Resume cleared!');
+        }
+
         function openChatModal() {
             const chatModal = document.getElementById('chatModal');
             chatModal.classList.add('show');
@@ -1201,8 +1469,6 @@
             });
             document.getElementById(tab + '-tab').classList.add('active');
         }
-
-        function showError(message) {
             const errorAlert = document.getElementById('errorAlert');
             errorAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
             errorAlert.classList.add('show');
@@ -1533,6 +1799,14 @@
                 addMessageToChat('assistant', '❌ Error: ' + error.message);
             }
         }
+
+        // Add event listeners for resume preview updates
+        ['fullName', 'email', 'phone', 'location', 'summary', 'skillsInput'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', updateResumePreview);
+            }
+        });
 
         document.addEventListener('keydown', function(e) {
             const chatInput = document.getElementById('chatInput');
