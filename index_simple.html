@@ -1197,85 +1197,81 @@
             </div>
 
             <div id="maker-tab" class="tab-content">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
-                    <!-- Left Side: Form -->
-                    <div>
-                        <!-- Personal Info -->
-                        <div class="form-group">
-                            <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-user"></i> Personal Information</h3>
-                            <input type="text" id="fullName" placeholder="Full Name" class="resume-input" style="margin-bottom: 12px;">
-                            <input type="email" id="email" placeholder="Email" class="resume-input" style="margin-bottom: 12px;">
-                            <input type="tel" id="phone" placeholder="Phone Number" class="resume-input" style="margin-bottom: 12px;">
-                            <input type="text" id="location" placeholder="City, Country" class="resume-input" style="margin-bottom: 12px;">
-                            <textarea id="summary" placeholder="Professional Summary" class="resume-input" style="min-height: 100px;"></textarea>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Full Name</label>
+                    <input type="text" id="rName" class="resume-input" placeholder="John Doe" onkeyup="renderResume()">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="text" id="rEmail" class="resume-input" placeholder="john@example.com" onkeyup="renderResume()">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone</label>
+                    <input type="text" id="rPhone" class="resume-input" placeholder="(123) 456-7890" onkeyup="renderResume()">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Location</label>
+                    <input type="text" id="rLocation" class="resume-input" placeholder="New York, USA" onkeyup="renderResume()">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-file-alt"></i> Professional Summary</label>
+                    <textarea id="rSummary" class="resume-input" placeholder="Write your professional summary..." style="min-height: 100px;" onkeyup="renderResume()"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-briefcase"></i> Experience</label>
+                    <textarea id="rExp" class="resume-input" placeholder="Senior Developer at Tech Corp, 2020-Present&#10;Led team of 5 developers" style="min-height: 100px;" onkeyup="renderResume()"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-graduation-cap"></i> Education</label>
+                    <textarea id="rEdu" class="resume-input" placeholder="B.S. Computer Science&#10;University of Technology, 2020" style="min-height: 80px;" onkeyup="renderResume()"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-star"></i> Skills</label>
+                    <textarea id="rSkills" class="resume-input" placeholder="JavaScript, Python, React, Node.js" style="min-height: 80px;" onkeyup="renderResume()"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="window.print()">
+                        <i class="fas fa-download"></i> Download as PDF
+                    </button>
+                    <button class="btn-secondary" onclick="resetResume()">
+                        <i class="fas fa-redo"></i> Clear All
+                    </button>
+                </div>
+
+                <div style="margin-top: 40px;">
+                    <h3 style="color: var(--primary); margin-bottom: 20px;"><i class="fas fa-eye"></i> Live Preview</h3>
+                    <div class="result-card" style="background: white; padding: 40px; font-family: 'Georgia', serif;">
+                        <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px;">
+                            <h1 id="pn" style="margin: 0; font-size: 26px;">Your Name</h1>
+                            <p id="pc" style="margin: 8px 0; font-size: 13px;">email@example.com | (123) 456-7890 | City</p>
                         </div>
 
-                        <!-- Experience -->
-                        <div class="form-group">
-                            <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-briefcase"></i> Experience</h3>
-                            <div id="experienceList"></div>
-                            <button class="btn-secondary" onclick="addExperience()">
-                                <i class="fas fa-plus"></i> Add Experience
-                            </button>
+                        <div id="psDiv" style="margin-bottom: 15px; display: none;">
+                            <h4 style="font-size: 12px; font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Professional Summary</h4>
+                            <p id="ps" style="font-size: 13px; line-height: 1.6; margin: 0;"></p>
                         </div>
 
-                        <!-- Education -->
-                        <div class="form-group">
-                            <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-graduation-cap"></i> Education</h3>
-                            <div id="educationList"></div>
-                            <button class="btn-secondary" onclick="addEducation()">
-                                <i class="fas fa-plus"></i> Add Education
-                            </button>
+                        <div id="peDiv" style="margin-bottom: 15px; display: none;">
+                            <h4 style="font-size: 12px; font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Experience</h4>
+                            <p id="pe" style="font-size: 13px; line-height: 1.6; margin: 0; white-space: pre-wrap;"></p>
                         </div>
 
-                        <!-- Skills -->
-                        <div class="form-group">
-                            <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-star"></i> Skills</h3>
-                            <input type="text" id="skillsInput" placeholder="Enter skills separated by commas" class="resume-input">
+                        <div id="pedDiv" style="margin-bottom: 15px; display: none;">
+                            <h4 style="font-size: 12px; font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Education</h4>
+                            <p id="ped" style="font-size: 13px; line-height: 1.6; margin: 0; white-space: pre-wrap;"></p>
                         </div>
-                    </div>
 
-                    <!-- Right Side: Preview -->
-                    <div>
-                        <div style="position: sticky; top: 20px;">
-                            <div class="result-card" style="border: none; background: white; padding: 40px;">
-                                <div id="resumePreview" style="font-family: 'Segoe UI', sans-serif;">
-                                    <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #667eea; padding-bottom: 20px;">
-                                        <h1 id="previewName" style="margin: 0; font-size: 28px; color: var(--text);">Your Name</h1>
-                                        <p id="previewContact" style="margin: 5px 0; color: var(--text-light); font-size: 13px;">
-                                            <span id="pEmail">email@example.com</span> |
-                                            <span id="pPhone">(123) 456-7890</span> |
-                                            <span id="pLocation">City, Country</span>
-                                        </p>
-                                    </div>
-
-                                    <div id="previewSummary" style="margin-bottom: 20px; display: none;">
-                                        <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">PROFESSIONAL SUMMARY</h3>
-                                        <p style="font-size: 13px; line-height: 1.6; color: var(--text);"></p>
-                                    </div>
-
-                                    <div id="previewExperience" style="margin-bottom: 20px; display: none;">
-                                        <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">EXPERIENCE</h3>
-                                    </div>
-
-                                    <div id="previewEducation" style="margin-bottom: 20px; display: none;">
-                                        <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">EDUCATION</h3>
-                                    </div>
-
-                                    <div id="previewSkills" style="display: none;">
-                                        <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">SKILLS</h3>
-                                        <div id="previewSkillsList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="button-group" style="margin-top: 20px;">
-                                <button class="btn-primary" onclick="downloadResume()">
-                                    <i class="fas fa-download"></i> Download PDF
-                                </button>
-                                <button class="btn-secondary" onclick="clearMaker()">
-                                    <i class="fas fa-trash"></i> Clear
-                                </button>
-                            </div>
+                        <div id="pskDiv" style="display: none;">
+                            <h4 style="font-size: 12px; font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Skills</h4>
+                            <p id="psk" style="font-size: 13px; line-height: 1.6; margin: 0;"></p>
                         </div>
                     </div>
                 </div>
@@ -1319,143 +1315,64 @@
     <script>
         let currentChatSessionId = null;
 
-        // Resume Maker Functions
-        function addExperience() {
-            const id = Date.now();
-            const html = `
-                <div class="experience-item" id="exp-${id}">
-                    <button class="remove-btn" onclick="removeExperience(${id})"><i class="fas fa-trash"></i> Remove</button>
-                    <input type="text" class="resume-input exp-company" placeholder="Company Name">
-                    <input type="text" class="resume-input exp-title" placeholder="Job Title">
-                    <input type="text" class="resume-input exp-period" placeholder="Jan 2020 - Dec 2021">
-                    <textarea class="resume-input exp-desc" placeholder="Job description and achievements" style="min-height: 80px;"></textarea>
-                </div>
-            `;
-            document.getElementById('experienceList').innerHTML += html;
+        // Resume Maker - Simple and Working
+        function renderResume() {
+            const name = document.getElementById('rName').value || 'Your Name';
+            const email = document.getElementById('rEmail').value || 'email@example.com';
+            const phone = document.getElementById('rPhone').value || '(123) 456-7890';
+            const location = document.getElementById('rLocation').value || 'City';
+            const summary = document.getElementById('rSummary').value;
+            const exp = document.getElementById('rExp').value;
+            const edu = document.getElementById('rEdu').value;
+            const skills = document.getElementById('rSkills').value;
 
-            // Add listeners to new inputs
-            const expItem = document.getElementById('exp-' + id);
-            expItem.querySelectorAll('.resume-input').forEach(el => {
-                el.addEventListener('input', updateResumePreview);
-            });
+            // Name and Contact
+            document.getElementById('pn').textContent = name;
+            document.getElementById('pc').textContent = email + ' | ' + phone + ' | ' + location;
 
-            updateResumePreview();
-        }
-
-        function removeExperience(id) {
-            document.getElementById('exp-' + id).remove();
-            updateResumePreview();
-        }
-
-        function addEducation() {
-            const id = Date.now();
-            const html = `
-                <div class="education-item" id="edu-${id}">
-                    <button class="remove-btn" onclick="removeEducation(${id})"><i class="fas fa-trash"></i> Remove</button>
-                    <input type="text" class="resume-input edu-school" placeholder="School/University">
-                    <input type="text" class="resume-input edu-degree" placeholder="Degree (e.g., Bachelor of Science)">
-                    <input type="text" class="resume-input edu-field" placeholder="Field of Study">
-                    <input type="text" class="resume-input edu-year" placeholder="Graduation Year">
-                </div>
-            `;
-            document.getElementById('educationList').innerHTML += html;
-
-            // Add listeners to new inputs
-            const eduItem = document.getElementById('edu-' + id);
-            eduItem.querySelectorAll('.resume-input').forEach(el => {
-                el.addEventListener('input', updateResumePreview);
-            });
-
-            updateResumePreview();
-        }
-
-        function removeEducation(id) {
-            document.getElementById('edu-' + id).remove();
-            updateResumePreview();
-        }
-
-        function updateResumePreview() {
-            const name = document.getElementById('fullName').value || 'Your Name';
-            const email = document.getElementById('email').value || 'email@example.com';
-            const phone = document.getElementById('phone').value || '(123) 456-7890';
-            const location = document.getElementById('location').value || 'City, Country';
-            const summary = document.getElementById('summary').value;
-
-            document.getElementById('previewName').textContent = name;
-            document.getElementById('pEmail').textContent = email;
-            document.getElementById('pPhone').textContent = phone;
-            document.getElementById('pLocation').textContent = location;
-
+            // Summary
             if (summary) {
-                document.getElementById('previewSummary').style.display = 'block';
-                document.getElementById('previewSummary').querySelector('p').textContent = summary;
+                document.getElementById('psDiv').style.display = 'block';
+                document.getElementById('ps').textContent = summary;
             } else {
-                document.getElementById('previewSummary').style.display = 'none';
+                document.getElementById('psDiv').style.display = 'none';
             }
 
-            const experiences = document.querySelectorAll('.experience-item');
-            if (experiences.length > 0) {
-                let expHtml = '<h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">EXPERIENCE</h3>';
-                experiences.forEach(exp => {
-                    const company = exp.querySelector('.exp-company').value;
-                    const title = exp.querySelector('.exp-title').value;
-                    const period = exp.querySelector('.exp-period').value;
-                    const desc = exp.querySelector('.exp-desc').value;
-
-                    if (company || title) {
-                        expHtml += `<div style="margin-bottom: 12px;"><div style="display: flex; justify-content: space-between;"><strong style="font-size: 13px; color: var(--text);">${title || 'Position'}</strong><span style="font-size: 12px; color: var(--text-light);">${period}</span></div><p style="margin: 4px 0; font-size: 12px; color: var(--text-light);">${company}</p><p style="margin: 4px 0; font-size: 12px; color: var(--text); line-height: 1.5;">${desc}</p></div>`;
-                    }
-                });
-                document.getElementById('previewExperience').innerHTML = expHtml;
-                document.getElementById('previewExperience').style.display = 'block';
+            // Experience
+            if (exp) {
+                document.getElementById('peDiv').style.display = 'block';
+                document.getElementById('pe').textContent = exp;
             } else {
-                document.getElementById('previewExperience').style.display = 'none';
+                document.getElementById('peDiv').style.display = 'none';
             }
 
-            const educations = document.querySelectorAll('.education-item');
-            if (educations.length > 0) {
-                let eduHtml = '<h3 style="font-size: 14px; margin-bottom: 8px; color: var(--primary); font-weight: 700;">EDUCATION</h3>';
-                educations.forEach(edu => {
-                    const school = edu.querySelector('.edu-school').value;
-                    const degree = edu.querySelector('.edu-degree').value;
-                    const field = edu.querySelector('.edu-field').value;
-                    const year = edu.querySelector('.edu-year').value;
-
-                    if (school || degree) {
-                        eduHtml += `<div style="margin-bottom: 12px;"><strong style="font-size: 13px; color: var(--text);">${degree || 'Degree'}</strong><p style="margin: 4px 0; font-size: 12px; color: var(--text-light);">${school}${field ? ' - ' + field : ''}</p><p style="margin: 4px 0; font-size: 12px; color: var(--text-light);">Graduated: ${year}</p></div>`;
-                    }
-                });
-                document.getElementById('previewEducation').innerHTML = eduHtml;
-                document.getElementById('previewEducation').style.display = 'block';
+            // Education
+            if (edu) {
+                document.getElementById('pedDiv').style.display = 'block';
+                document.getElementById('ped').textContent = edu;
             } else {
-                document.getElementById('previewEducation').style.display = 'none';
+                document.getElementById('pedDiv').style.display = 'none';
             }
 
-            const skills = document.getElementById('skillsInput').value;
+            // Skills
             if (skills) {
-                const skillArray = skills.split(',').map(s => s.trim()).filter(s => s);
-                const skillHtml = skillArray.map(skill => `<span style="background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">${skill}</span>`).join('');
-                document.getElementById('previewSkillsList').innerHTML = skillHtml;
-                document.getElementById('previewSkills').style.display = 'block';
+                document.getElementById('pskDiv').style.display = 'block';
+                document.getElementById('psk').textContent = skills;
             } else {
-                document.getElementById('previewSkills').style.display = 'none';
+                document.getElementById('pskDiv').style.display = 'none';
             }
         }
 
-        function downloadResume() {
-            window.print();
-        }
-
-        function clearMaker() {
-            document.getElementById('fullName').value = '';
-            document.getElementById('email').value = '';
-            document.getElementById('phone').value = '';
-            document.getElementById('location').value = '';
-            document.getElementById('summary').value = '';
-            document.getElementById('skillsInput').value = '';
-            document.getElementById('experienceList').innerHTML = '';
-            document.getElementById('educationList').innerHTML = '';
-            updateResumePreview();
+        function resetResume() {
+            document.getElementById('rName').value = '';
+            document.getElementById('rEmail').value = '';
+            document.getElementById('rPhone').value = '';
+            document.getElementById('rLocation').value = '';
+            document.getElementById('rSummary').value = '';
+            document.getElementById('rExp').value = '';
+            document.getElementById('rEdu').value = '';
+            document.getElementById('rSkills').value = '';
+            renderResume();
             showSuccess('Resume cleared!');
         }
 
