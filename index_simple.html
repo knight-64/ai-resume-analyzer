@@ -1332,6 +1332,13 @@
                 </div>
             `;
             document.getElementById('experienceList').innerHTML += html;
+
+            // Add listeners to new inputs
+            const expItem = document.getElementById('exp-' + id);
+            expItem.querySelectorAll('.resume-input').forEach(el => {
+                el.addEventListener('input', updateResumePreview);
+            });
+
             updateResumePreview();
         }
 
@@ -1352,6 +1359,13 @@
                 </div>
             `;
             document.getElementById('educationList').innerHTML += html;
+
+            // Add listeners to new inputs
+            const eduItem = document.getElementById('edu-' + id);
+            eduItem.querySelectorAll('.resume-input').forEach(el => {
+                el.addEventListener('input', updateResumePreview);
+            });
+
             updateResumePreview();
         }
 
@@ -1464,10 +1478,21 @@
         }
 
         function switchTab(tab) {
+            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(el => {
                 el.classList.remove('active');
             });
+
+            // Deactivate all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
             document.getElementById(tab + '-tab').classList.add('active');
+
+            // Activate clicked button
+            event.target.closest('.tab-button').classList.add('active');
         }
             const errorAlert = document.getElementById('errorAlert');
             errorAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
@@ -1480,6 +1505,13 @@
             successAlert.innerHTML = '<i class="fas fa-check-circle"></i> ' + message;
             successAlert.classList.add('show');
             setTimeout(() => successAlert.classList.remove('show'), 5000);
+        }
+
+        function showError(message) {
+            const errorAlert = document.getElementById('errorAlert');
+            errorAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
+            errorAlert.classList.add('show');
+            setTimeout(() => errorAlert.classList.remove('show'), 5000);
         }
 
         function clearForm() {
@@ -1806,6 +1838,11 @@
             if (el) {
                 el.addEventListener('input', updateResumePreview);
             }
+        });
+
+        // Initialize preview on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateResumePreview();
         });
 
         document.addEventListener('keydown', function(e) {
