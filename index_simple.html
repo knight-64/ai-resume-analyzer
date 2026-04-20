@@ -1411,11 +1411,6 @@
             // Activate clicked button
             event.target.closest('.tab-button').classList.add('active');
         }
-            const errorAlert = document.getElementById('errorAlert');
-            errorAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
-            errorAlert.classList.add('show');
-            setTimeout(() => errorAlert.classList.remove('show'), 5000);
-        }
 
         function showSuccess(message) {
             const successAlert = document.getElementById('successAlert');
@@ -1748,19 +1743,6 @@
                 addMessageToChat('assistant', '❌ Error: ' + error.message);
             }
         }
-
-        // Add event listeners for resume preview updates
-        ['fullName', 'email', 'phone', 'location', 'summary', 'skillsInput'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('input', updateResumePreview);
-            }
-        });
-
-        // Initialize preview on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updateResumePreview();
-        });
 
         document.addEventListener('keydown', function(e) {
             const chatInput = document.getElementById('chatInput');
