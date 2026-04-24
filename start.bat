@@ -54,9 +54,14 @@ if /i "!LLM_PROVIDER!"=="groq" (
     )
 )
 
-if not exist "backend\venv\Scripts\activate.bat" (
-    echo ERROR: Virtual environment not found at backend\venv
-    echo Create it with: python -m venv backend\venv
+set "VENV_ACTIVATE="
+if exist "backend\venv\Scripts\activate.bat" set "VENV_ACTIVATE=backend\venv\Scripts\activate.bat"
+if exist ".venv\Scripts\activate.bat" if "!VENV_ACTIVATE!"=="" set "VENV_ACTIVATE=.venv\Scripts\activate.bat"
+
+if "!VENV_ACTIVATE!"=="" (
+    echo ERROR: Virtual environment not found at backend\venv or .venv
+    echo Create one with: python -m venv backend\venv
+    echo Or create one with: python -m venv .venv
     pause
     exit /b 1
 )
@@ -84,7 +89,15 @@ if not "!RUN_PORT!"=="!PORT!" (
 set "PORT=!RUN_PORT!"
 
 echo Activating virtual environment...
-call backend\venv\Scripts\activate.bat
+call "!VENV_ACTIVATE!"
+
+echo Installing backend dependencies...
+python -m pip install -r backend\requirements.txt >nul
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to install backend dependencies.
+    pause
+    exit /b 1
+)
 
 echo Starting AI Resume Analyzer...
 echo.================================

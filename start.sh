@@ -48,15 +48,25 @@ if [ -z "$VIRTUAL_ENV" ]; then
     if [ -f backend/venv/Scripts/activate ]; then
         # Git Bash / Windows layout
         source backend/venv/Scripts/activate
+    elif [ -f .venv/Scripts/activate ]; then
+        # Git Bash / Windows layout at repo root
+        source .venv/Scripts/activate
     elif [ -f backend/venv/bin/activate ]; then
         # Linux/macOS layout
         source backend/venv/bin/activate
+    elif [ -f .venv/bin/activate ]; then
+        # Linux/macOS layout at repo root
+        source .venv/bin/activate
     else
-        echo "ERROR: Virtual environment not found at backend/venv"
-        echo "Create it with: python -m venv backend/venv"
+        echo "ERROR: Virtual environment not found at backend/venv or .venv"
+        echo "Create one with: python -m venv backend/venv"
+        echo "Or create one with: python -m venv .venv"
         exit 1
     fi
 fi
+
+echo "Installing backend dependencies..."
+python -m pip install -r backend/requirements.txt >/dev/null
 
 echo "Starting AI Resume Analyzer..."
 echo "================================"
