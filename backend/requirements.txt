@@ -6,3 +6,5 @@ anthropic
 groq
 pytest
 httpx
+pypdf
+python-multipart

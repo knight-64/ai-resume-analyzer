@@ -224,7 +224,6 @@ async def send_chat_message(request: ChatRequest):
 
         # Add user message
         manager.add_message(request.session_id, "user", request.message)
-        messages.append({"role": "user", "content": request.message})
 
         # Get LLM response
         try:
