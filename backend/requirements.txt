@@ -8,3 +8,9 @@ pytest
 httpx
 pypdf
 python-multipart
+supabase
+requests
+pyjwt
+bcrypt
+sqlalchemy
+psycopg2-binary

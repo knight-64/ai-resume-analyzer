@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict, Optional
-from datetime import datetime
+from typing import List, Optional
 
 
 class AnalysisRequest(BaseModel):
@@ -79,3 +78,10 @@ class ChatResponse(BaseModel):
 class ChatSessionResponse(BaseModel):
     """Response model for creating a chat session"""
     session_id: str = Field(..., description="Newly created session ID")
+
+
+class ResumeUploadRequest(BaseModel):
+    """Request to upload and analyze a resume"""
+    resume_text: str = Field(..., description="Resume text content")
+    job_description: str = Field(..., description="Job description")
+    provider: Optional[str] = None

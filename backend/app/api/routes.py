@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi.responses import Response
 from ..services.analyzer import ResumeAnalyzer
 from ..services.pdf_extractor import extract_text_from_pdf
 from ..services.conversation import ConversationManager
@@ -13,6 +14,7 @@ from ..schemas import (
     ChatSessionResponse,
 )
 from typing import Dict, List, Optional
+import html
 import time
 
 router = APIRouter(prefix="/api", tags=["analysis"])
@@ -133,8 +135,8 @@ async def health_check():
 @router.post("/upload-resume")
 async def upload_resume_pdf(
     file: UploadFile = File(...),
-    job_description: str = "",
-    provider: Optional[str] = None,
+    job_description: str = Form(""),
+    provider: Optional[str] = Form(None),
 ):
     """
     Upload a resume PDF and optionally analyze it.
@@ -181,6 +183,92 @@ async def upload_resume_pdf(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+
+@router.post("/resume-download")
+async def download_resume_html(
+    name: str = Form("Your Name"),
+    title: str = Form("Professional Title"),
+    email: str = Form(""),
+    phone: str = Form(""),
+    location: str = Form(""),
+    summary: str = Form(""),
+    skills: str = Form(""),
+    experience: str = Form(""),
+    education: str = Form(""),
+):
+    """Return a simple HTML resume as a downloadable attachment."""
+
+    def split_lines(value: str) -> List[str]:
+        return [line.strip() for line in value.splitlines() if line.strip()]
+
+    def list_items(lines: List[str]) -> str:
+        return "".join(f"<li>{html.escape(line)}</li>" for line in lines)
+
+    safe_name = name.strip() or "resume"
+    filename = "-".join(part for part in safe_name.lower().split() if part) or "resume"
+    filename = "".join(ch for ch in filename if ch.isalnum() or ch == "-") or "resume"
+
+    contact = " | ".join(
+        html.escape(value)
+        for value in [email.strip(), phone.strip(), location.strip()]
+        if value.strip()
+    )
+
+    html_content = f"""<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+  <meta charset=\"UTF-8\">
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+  <title>{html.escape(safe_name)} - Resume</title>
+  <style>
+        body {{ font-family: Arial, sans-serif; margin: 0; padding: 44px; color: #111827; line-height: 1.6; background: #ffffff; }}
+        .resume {{ max-width: 760px; margin: 0 auto; }}
+        h1 {{ margin: 0; font-size: 42px; letter-spacing: 0.04em; text-align: center; }}
+        .headline {{ color: #404040; font-weight: 700; font-size: 1.1rem; text-align: center; margin-top: 4px; margin-bottom: 12px; }}
+        .contact {{ color: #404040; margin-bottom: 18px; text-align: center; padding-bottom: 12px; border-bottom: 1px solid #d1d5db; }}
+        h2 {{ font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; color: #111827; margin-top: 22px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #d1d5db; }}
+        .entry {{ margin-bottom: 14px; }}
+        .meta {{ color: #6b7280; font-size: 0.95rem; }}
+        .role {{ color: #111827; font-size: 1.02rem; font-weight: 700; margin-top: 2px; }}
+        .desc {{ color: #111827; }}
+        ul {{ margin: 0; padding-left: 18px; }}
+        .skills {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 22px; padding-left: 18px; }}
+        p {{ margin: 0; }}
+  </style>
+</head>
+<body>
+    <div class="resume">
+        <h1>{html.escape(safe_name).upper()}</h1>
+        <div class="headline">{html.escape(title.strip() or 'Professional Title')}</div>
+        <div class="contact">{contact}</div>
+        <h2>About Me</h2>
+        <p>{html.escape(summary.strip())}</p>
+        <h2>Education</h2>
+        {''.join(
+                f'<div class="entry"><div class="meta">{html.escape(parts[0])} | {html.escape(parts[1])}</div><div class="role">{html.escape(parts[2])}</div><div class="desc">{html.escape(parts[3])}</div></div>'
+                if (parts := [part.strip() for part in item.split('|') if part.strip()]) and len(parts) >= 4
+                else f'<div class="entry"><div class="desc">{html.escape(item)}</div></div>'
+                for item in split_lines(education)
+        )}
+        <h2>Work Experience</h2>
+        {''.join(
+                f'<div class="entry"><div class="meta">{html.escape(parts[0])} | {html.escape(parts[1])}</div><div class="role">{html.escape(parts[2])}</div><div class="desc">{html.escape(parts[3])}</div></div>'
+                if (parts := [part.strip() for part in item.split('|') if part.strip()]) and len(parts) >= 4
+                else f'<div class="entry"><div class="desc">{html.escape(item)}</div></div>'
+                for item in split_lines(experience)
+        )}
+        <h2>Skills</h2>
+        <ul class="skills">{''.join(f'<li>{html.escape(skill)}</li>' for skill in split_lines(skills) or [skills])}</ul>
+    </div>
+</body>
+</html>"""
+
+    return Response(
+        content=html_content,
+        media_type="text/html",
+        headers={"Content-Disposition": f'attachment; filename="{filename}.html"'},
+    )
 
 
 # Chat endpoints

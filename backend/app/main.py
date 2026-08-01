@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pathlib import Path
 from dotenv import load_dotenv
-import os
 
 from .api.routes import router
 
@@ -14,7 +13,7 @@ load_dotenv()
 app = FastAPI(
     title="AI Resume Analyzer",
     description="Analyze resumes against job descriptions using AI",
-    version="0.1.0",
+    version="2.0.0",
 )
 
 # Add CORS middleware
@@ -33,6 +32,7 @@ def get_html_content() -> str:
     backend_dir = Path(__file__).parent.parent  # app -> backend
     project_root = backend_dir.parent            # backend -> project root
     ui_candidates = [
+        project_root / "index_new.html",   # public UI
         project_root / "index_backup.html",  # full UI
         project_root / "index.html",         # fallback UI
         project_root / "index_simple.html",  # minimal fallback

@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Analyzer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-0: #0b1020;
+            --bg-1: #121a33;
+            --bg-2: #182241;
+            --panel: rgba(255, 255, 255, 0.08);
+            --panel-strong: rgba(255, 255, 255, 0.14);
+            --border: rgba(255, 255, 255, 0.12);
+            --text: #f4f7fb;
+            --muted: #c7d0e0;
+            --soft: #93a4c3;
+            --accent: #ffd76a;
+            --accent-2: #6ea8ff;
+            --good: #3ddc97;
+            --warn: #f4b942;
+            --bad: #ff6b6b;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            min-height: 100vh;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255, 215, 106, 0.14), transparent 28%),
+                radial-gradient(circle at 85% 10%, rgba(110, 168, 255, 0.15), transparent 24%),
+                radial-gradient(circle at 50% 85%, rgba(61, 220, 151, 0.08), transparent 30%),
+                linear-gradient(135deg, var(--bg-0), var(--bg-1) 48%, var(--bg-2));
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 52px 52px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.55), transparent 85%);
+            pointer-events: none;
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            background: rgba(8, 12, 24, 0.72);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            font-size: 1.05rem;
+        }
+
+        .logo i { color: var(--accent); }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-menu a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .nav-menu a:hover { color: var(--accent); }
+
+        .btn {
+            border: 0;
+            border-radius: 0.9rem;
+            padding: 0.85rem 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #ffbe55);
+            color: #1a1720;
+            box-shadow: 0 10px 25px rgba(255, 215, 106, 0.18);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .page {
+            display: none;
+            min-height: calc(100vh - 76px);
+        }
+
+        .page.active { display: block; }
+
+        .container {
+            width: min(1180px, calc(100% - 2rem));
+            margin: 0 auto;
+            padding: 2rem 0 3rem;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 1.5rem;
+            align-items: stretch;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+        }
+
+        .hero-copy {
+            padding: 2.2rem;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 215, 106, 0.2);
+            color: var(--accent);
+            background: rgba(255, 215, 106, 0.06);
+            font-size: 0.92rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4.4rem);
+            line-height: 1.02;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 1.05rem;
+            line-height: 1.7;
+            max-width: 58ch;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.9rem;
+            margin-top: 1.6rem;
+        }
+
+        .hero-points {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 1.6rem;
+        }
+
+        .mini-card {
+            padding: 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .mini-card .label {
+            color: var(--soft);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.35rem;
+        }
+
+        .mini-card .value {
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .sidebar {
+            padding: 1.5rem;
+            display: grid;
+            gap: 1rem;
+        }
+
+        .feature {
+            padding: 1.1rem 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .feature h3 {
+            margin-bottom: 0.4rem;
+            font-size: 1rem;
+        }
+
+        .feature p {
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .analyzer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-top: 1.25rem;
+        }
+
+        .section {
+            padding: 1.5rem;
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section p.subtle {
+            color: var(--muted);
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 290px;
+            resize: vertical;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+            padding: 1rem;
+            line-height: 1.65;
+            font-size: 0.98rem;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: rgba(255, 215, 106, 0.45);
+            box-shadow: 0 0 0 4px rgba(255, 215, 106, 0.08);
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: flex-start;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .upload-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.18);
+        }
+
+        .upload-box input[type="file"] {
+            width: 100%;
+            color: var(--muted);
+        }
+
+        .upload-note {
+            color: var(--soft);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .alert {
+            padding: 0.95rem 1rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .alert-error {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.28);
+            color: #ffb8b8;
+        }
+
+        .alert-success {
+            background: rgba(61, 220, 151, 0.1);
+            border: 1px solid rgba(61, 220, 151, 0.28);
+            color: #b7f7dd;
+        }
+
+        .alert-info {
+            background: rgba(110, 168, 255, 0.1);
+            border: 1px solid rgba(110, 168, 255, 0.28);
+            color: #c7d9ff;
+        }
+
+        .alert-warning {
+            background: rgba(244, 185, 66, 0.1);
+            border: 1px solid rgba(244, 185, 66, 0.28);
+            color: #ffe3a5;
+        }
+
+        .alert i { margin-top: 0.15rem; }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .result-card {
+            padding: 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .result-card .label {
+            color: var(--soft);
+            font-size: 0.83rem;
+            margin-bottom: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .result-card .value {
+            font-size: 1.4rem;
+            font-weight: 900;
+        }
+
+        .maker-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-top: 1.25rem;
+        }
+
+        .maker-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-field {
+            margin-bottom: 1rem;
+        }
+
+        .form-field input,
+        .form-field textarea {
+            width: 100%;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+            padding: 0.95rem 1rem;
+            outline: none;
+        }
+
+        .form-field textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .resume-preview {
+            padding: 1.5rem;
+            background: #fefefe;
+            color: #111827;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(17, 24, 39, 0.12);
+            min-height: 100%;
+        }
+
+        .resume-preview * {
+            color: inherit;
+        }
+
+        .resume-preview h3 {
+            font-size: 2.4rem;
+            line-height: 1.05;
+            letter-spacing: 0.04em;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 0.1rem;
+        }
+
+        .resume-preview .headline {
+            color: #404040;
+            font-weight: 700;
+            font-size: 1.05rem;
+            text-align: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .resume-preview .contact-line {
+            color: #404040;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.85rem;
+            font-size: 0.9rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(17, 24, 39, 0.22);
+            padding-bottom: 0.85rem;
+        }
+
+        .resume-preview .contact-line span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .resume-section {
+            margin-top: 1.1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(17, 24, 39, 0.22);
+        }
+
+        .resume-section h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.7rem;
+            color: #111827;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+        }
+
+        .resume-section p,
+        .resume-section li {
+            color: #111827;
+            line-height: 1.65;
+        }
+
+        .resume-section ul {
+            padding-left: 1.2rem;
+        }
+
+        .preview-empty {
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .resume-entry {
+            margin-bottom: 0.9rem;
+        }
+
+        .resume-entry .meta {
+            color: #6b7280;
+            font-size: 0.93rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .resume-entry .role {
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 0.15rem;
+        }
+
+        .resume-entry .desc {
+            color: #111827;
+        }
+
+        .resume-section:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .skill-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.5rem 1.4rem;
+            padding-left: 1.15rem;
+        }
+
+        .skill-list li {
+            margin: 0;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: var(--accent);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.66);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            width: min(420px, calc(100% - 2rem));
+            text-align: center;
+            padding: 1.8rem;
+            border-radius: 1.4rem;
+            background: rgba(12, 18, 36, 0.92);
+            border: 1px solid var(--border);
+        }
+
+        .modal-content p {
+            color: var(--muted);
+            margin-top: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+            .hero, .analyzer-grid, .maker-layout, .maker-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                padding: 1rem;
+            }
+
+            .hero-copy, .section, .sidebar {
+                padding: 1.2rem;
+            }
+
+            .hero-points {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo"><i class="fas fa-brain"></i> Resume AI</div>
+        <div class="nav-menu">
+            <a href="#" onclick="showPage('dashboard'); return false;">Home</a>
+            <a href="#" onclick="showPage('analyzer'); return false;">Analyzer</a>
+            <a href="#" onclick="showPage('maker'); return false;">Resume Maker</a>
+        </div>
+    </nav>
+
+    <div id="dashboard" class="page active">
+        <div class="container">
+            <div class="hero">
+                <div class="panel hero-copy">
+                    <div class="eyebrow"><i class="fas fa-wand-magic-sparkles"></i> No login required</div>
+                    <h1>Analyze resumes instantly.</h1>
+                    <p>Paste a resume and a job description to get a match score, ATS insight, weak-section feedback, and practical improvement suggestions. The app is public now, so you can start right away.</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary" onclick="showPage('analyzer'); return false;">Open Analyzer</button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('resume-input').focus(); showPage('analyzer'); return false;">Jump to Inputs</button>
+                    </div>
+                    <div class="hero-points">
+                        <div class="mini-card">
+                            <div class="label">Mode</div>
+                            <div class="value">Public</div>
+                        </div>
+                        <div class="mini-card">
+                            <div class="label">Output</div>
+                            <div class="value">AI Feedback</div>
+                        </div>
+                        <div class="mini-card">
+                            <div class="label">Setup</div>
+                            <div class="value">Zero auth</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel sidebar">
+                    <div class="feature">
+                        <h3><i class="fas fa-chart-line"></i> Match scoring</h3>
+                        <p>See how closely a resume lines up with the job description and where it needs improvement.</p>
+                    </div>
+                    <div class="feature">
+                        <h3><i class="fas fa-list-check"></i> Skills breakdown</h3>
+                        <p>Get extracted, matched, and missing skills in a compact view that is easy to act on.</p>
+                    </div>
+                    <div class="feature">
+                        <h3><i class="fas fa-bolt"></i> Fast workflow</h3>
+                        <p>No signup, no login, no subscription path. Just paste text and analyze.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="analyzer" class="page">
+        <div class="container">
+            <div class="panel section">
+                <h2>Resume Analyzer</h2>
+                <p class="subtle">Paste both documents below. The analysis runs directly against the backend API.</p>
+                <div id="analyzer-message"></div>
+
+                <div class="analyzer-grid">
+                    <div>
+                        <label for="resume-input">Resume</label>
+                        <textarea id="resume-input" placeholder="Paste resume text here..."></textarea>
+                        <div class="upload-box">
+                            <label for="resume-file" style="margin-bottom: 0.4rem;">Or upload a PDF resume</label>
+                            <input type="file" id="resume-file" accept="application/pdf,.pdf" onchange="handleResumeFileSelect(event)">
+                            <div class="upload-note" id="resume-file-note">No file selected.</div>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="jd-input">Job Description</label>
+                        <textarea id="jd-input" placeholder="Paste job description here..."></textarea>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <button class="btn btn-primary" onclick="analyzeResume(); return false;"><i class="fas fa-wand-magic-sparkles"></i> Analyze Resume</button>
+                    <button class="btn btn-secondary" onclick="clearInputs(); return false;">Clear</button>
+                </div>
+
+                <div id="analysis-result" style="margin-top: 1.4rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="maker" class="page">
+        <div class="container">
+            <div class="panel section">
+                <h2>Resume Maker</h2>
+                <p class="subtle">Fill in your details, preview the resume, and download it as a standalone HTML file.</p>
+
+                <div class="maker-layout">
+                    <div>
+                        <div class="maker-grid">
+                            <div class="form-field">
+                                <label for="rm-name">Full Name</label>
+                                <input id="rm-name" type="text" placeholder="Alex Johnson" oninput="updateResumePreview()">
+                            </div>
+                            <div class="form-field">
+                                <label for="rm-title">Professional Title</label>
+                                <input id="rm-title" type="text" placeholder="Senior Software Engineer" oninput="updateResumePreview()">
+                            </div>
+                            <div class="form-field">
+                                <label for="rm-email">Email</label>
+                                <input id="rm-email" type="email" placeholder="alex@email.com" oninput="updateResumePreview()">
+                            </div>
+                            <div class="form-field">
+                                <label for="rm-phone">Phone</label>
+                                <input id="rm-phone" type="text" placeholder="(555) 123-4567" oninput="updateResumePreview()">
+                            </div>
+                            <div class="form-field" style="grid-column: 1 / -1;">
+                                <label for="rm-location">Location</label>
+                                <input id="rm-location" type="text" placeholder="San Francisco, CA" oninput="updateResumePreview()">
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="rm-summary">About Me</label>
+                            <textarea id="rm-summary" placeholder="Write a short about-me section..." oninput="updateResumePreview()"></textarea>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="rm-skills">Skills</label>
+                            <textarea id="rm-skills" placeholder="Auditing, Financial Accounting, Financial Reporting" oninput="updateResumePreview()"></textarea>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="rm-experience">Work Experience</label>
+                            <textarea id="rm-experience" placeholder="Company | 2033 - 2035 | Senior Accountant | Lorem ipsum dolor sit amet..." oninput="updateResumePreview()"></textarea>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="rm-education">Education</label>
+                            <textarea id="rm-education" placeholder="School | 2026-2030 | Degree | Description" oninput="updateResumePreview()"></textarea>
+                        </div>
+
+                        <div class="action-row">
+                            <button class="btn btn-primary" onclick="downloadResume(); return false;"><i class="fas fa-download"></i> Download Resume</button>
+                            <button class="btn btn-secondary" onclick="fillResumeExample(); return false;">Load Example</button>
+                            <button class="btn btn-secondary" onclick="clearResumeMaker(); return false;">Clear</button>
+                        </div>
+                    </div>
+
+                    <div class="resume-preview" id="resume-preview">
+                        <div class="preview-empty">Your resume preview will appear here.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loadingModal" class="modal">
+        <div class="modal-content">
+            <div class="spinner" style="margin: 0 auto;"></div>
+            <p id="loading-text">Processing...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8888/api';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            showPage('dashboard');
+            updateResumePreview();
+            fillResumeExample();
+        });
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function clearInputs() {
+            document.getElementById('resume-input').value = '';
+            document.getElementById('resume-file').value = '';
+            document.getElementById('resume-file-note').textContent = 'No file selected.';
+            document.getElementById('jd-input').value = '';
+            document.getElementById('analysis-result').innerHTML = '';
+            document.getElementById('analyzer-message').innerHTML = '';
+        }
+
+        function handleResumeFileSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            const note = document.getElementById('resume-file-note');
+
+            if (!file) {
+                note.textContent = 'No file selected.';
+                return;
+            }
+
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                note.textContent = 'Please choose a PDF file.';
+                event.target.value = '';
+                return;
+            }
+
+            note.textContent = `Selected: ${file.name}`;
+        }
+
+        function clearResumeMaker() {
+            ['rm-name', 'rm-title', 'rm-email', 'rm-phone', 'rm-location', 'rm-summary', 'rm-skills', 'rm-experience', 'rm-education']
+                .forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.value = '';
+                });
+            updateResumePreview();
+        }
+
+        function fillResumeExample() {
+            document.getElementById('rm-name').value = 'Sebastian Bennett';
+            document.getElementById('rm-title').value = 'Professional Accountant';
+            document.getElementById('rm-email').value = 'hello@reallygreatsite.com';
+            document.getElementById('rm-phone').value = '+123-456-7890';
+            document.getElementById('rm-location').value = '123 Anywhere St., Any City';
+            document.getElementById('rm-summary').value = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
+            document.getElementById('rm-skills').value = 'Auditing\nFinancial Accounting\nFinancial Reporting';
+            document.getElementById('rm-experience').value = 'Salford & Co. | 2033 - 2035 | Senior Accountant | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nSalford & Co. | 2030 - 2033 | Financial Accountant | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+            document.getElementById('rm-education').value = 'Borcelle University | 2026-2030 | Senior Accountant | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nBorcelle University | 2023-2026 | Senior Accountant | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+            updateResumePreview();
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function splitLines(value) {
+            return String(value)
+                .split(/\n+/)
+                .map(item => item.trim())
+                .filter(Boolean);
+        }
+
+        function renderSkillList(skills) {
+            if (!skills.length) {
+                return `<p class="preview-empty">List your technical and professional skills.</p>`;
+            }
+
+            return `<ul class="skill-list">${skills.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+        }
+
+        function renderExperienceEntries(entries) {
+            if (!entries.length) {
+                return `<p class="preview-empty">Add your work history.</p>`;
+            }
+
+            return entries.map(item => {
+                const parts = item.split('|').map(part => part.trim()).filter(Boolean);
+                if (parts.length >= 4) {
+                    const [company, dates, role, ...details] = parts;
+                    return `
+                        <div class="resume-entry">
+                            <div class="meta">${escapeHtml(company)} | ${escapeHtml(dates)}</div>
+                            <div class="role">${escapeHtml(role)}</div>
+                            <div class="desc">${escapeHtml(details.join(' | '))}</div>
+                        </div>
+                    `;
+                }
+
+                return `<div class="resume-entry"><div class="desc">${escapeHtml(item)}</div></div>`;
+            }).join('');
+        }
+
+        function buildResumeMarkup() {
+            const name = document.getElementById('rm-name').value.trim() || 'Your Name';
+            const title = document.getElementById('rm-title').value.trim() || 'Professional Title';
+            const email = document.getElementById('rm-email').value.trim();
+            const phone = document.getElementById('rm-phone').value.trim();
+            const location = document.getElementById('rm-location').value.trim();
+            const summary = document.getElementById('rm-summary').value.trim();
+            const skills = document.getElementById('rm-skills').value.trim();
+            const experience = splitLines(document.getElementById('rm-experience').value);
+            const education = splitLines(document.getElementById('rm-education').value);
+
+            const contactParts = [
+                phone ? `<span><i class="fas fa-phone"></i> ${escapeHtml(phone)}</span>` : '',
+                email ? `<span><i class="fas fa-envelope"></i> ${escapeHtml(email)}</span>` : '',
+                location ? `<span><i class="fas fa-location-dot"></i> ${escapeHtml(location)}</span>` : '',
+            ].filter(Boolean).join('');
+
+            return `
+                <div>
+                    <h3>${escapeHtml(name)}</h3>
+                    <div class="headline">${escapeHtml(title)}</div>
+                    <div class="contact-line">${contactParts || 'Add your contact details above.'}</div>
+
+                    <div class="resume-section">
+                        <h4>About Me</h4>
+                        <p>${summary ? escapeHtml(summary) : '<span class="preview-empty">Write a short professional summary.</span>'}</p>
+                    </div>
+
+                    <div class="resume-section">
+                        <h4>Education</h4>
+                        ${renderExperienceEntries(education)}
+                    </div>
+
+                    <div class="resume-section">
+                        <h4>Work Experience</h4>
+                        ${renderExperienceEntries(experience)}
+                    </div>
+
+                    <div class="resume-section">
+                        <h4>Skills</h4>
+                        ${renderSkillList(splitLines(skills))}
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateResumePreview() {
+            const preview = document.getElementById('resume-preview');
+            if (!preview) return;
+            preview.innerHTML = buildResumeMarkup();
+        }
+
+        function downloadResume() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `${API_BASE}/resume-download`;
+            form.style.display = 'none';
+
+            const fieldMap = {
+                name: 'rm-name',
+                title: 'rm-title',
+                email: 'rm-email',
+                phone: 'rm-phone',
+                location: 'rm-location',
+                summary: 'rm-summary',
+                skills: 'rm-skills',
+                experience: 'rm-experience',
+                education: 'rm-education'
+            };
+
+            Object.entries(fieldMap).forEach(([fieldName, elementId]) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = fieldName;
+                input.value = document.getElementById(elementId).value;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+            form.remove();
+        }
+
+        function showLoading(message) {
+            document.getElementById('loading-text').textContent = message;
+            document.getElementById('loadingModal').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingModal').classList.remove('active');
+        }
+
+        function showAlert(message, type = 'info', targetId = 'analysis-result') {
+            const target = document.getElementById(targetId);
+            if (!target) return;
+
+            const iconMap = {
+                error: 'fa-circle-exclamation',
+                success: 'fa-circle-check',
+                info: 'fa-circle-info',
+                warning: 'fa-triangle-exclamation'
+            };
+
+            target.innerHTML = `
+                <div class="alert alert-${type}">
+                    <i class="fas ${iconMap[type] || iconMap.info}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+        }
+
+        async function analyzeResume() {
+            const resumeText = document.getElementById('resume-input').value.trim();
+            const jdText = document.getElementById('jd-input').value.trim();
+            const resumeFile = document.getElementById('resume-file').files[0] || null;
+
+            if (!jdText) {
+                showAlert('Please fill in the job description.', 'error', 'analyzer-message');
+                return;
+            }
+
+            if (!resumeText && !resumeFile) {
+                showAlert('Paste resume text or upload a PDF resume.', 'error', 'analyzer-message');
+                return;
+            }
+
+            showLoading(resumeFile ? 'Uploading and analyzing PDF...' : 'Analyzing resume...');
+
+            try {
+                let response;
+
+                if (resumeFile) {
+                    const formData = new FormData();
+                    formData.append('file', resumeFile);
+                    formData.append('job_description', jdText);
+
+                    response = await fetch(`${API_BASE}/upload-resume`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    response = await fetch(`${API_BASE}/analyze`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            resume: resumeText,
+                            job_description: jdText
+                        })
+                    });
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Analysis failed');
+                }
+
+                const data = await response.json();
+                hideLoading();
+                if (data.analysis) {
+                    renderAnalysis(data.analysis);
+                } else if (data.extracted_text) {
+                    showAlert('PDF uploaded successfully. Add a job description to analyze it.', 'success', 'analyzer-message');
+                    document.getElementById('resume-input').value = data.extracted_text;
+                } else {
+                    renderAnalysis(data);
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert(error.message || 'Analysis failed.', 'error', 'analyzer-message');
+            }
+        }
+
+        function renderAnalysis(result) {
+            const skills = result.skills || { extracted: [], matched: [], missing: [] };
+            const weakSections = result.weak_sections || [];
+            const suggestions = result.suggestions || [];
+
+            const html = `
+                <div class="panel section" style="margin-top: 1rem;">
+                    <h2>Analysis Results</h2>
+                    <p class="subtle">Generated in ${Math.round(result.processing_time_ms || 0)} ms</p>
+
+                    <div class="result-grid">
+                        <div class="result-card">
+                            <div class="label">Match Percentage</div>
+                            <div class="value">${result.match_percentage}%</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="label">ATS Score</div>
+                            <div class="value">${result.ats_score}</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="label">Skills Matched</div>
+                            <div class="value">${skills.matched.length}</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="label">Skills Missing</div>
+                            <div class="value">${skills.missing.length}</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.2rem;">
+                        <h3 style="margin-bottom: 0.6rem;">Weak Sections</h3>
+                        <p style="color: var(--muted); line-height: 1.7;">${weakSections.length ? weakSections.join(', ') : 'None detected'}</p>
+                    </div>
+
+                    <div style="margin-top: 1.2rem;">
+                        <h3 style="margin-bottom: 0.6rem;">Suggestions</h3>
+                        <ul style="padding-left: 1.2rem; color: var(--muted); line-height: 1.75;">
+                            ${suggestions.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div style="margin-top: 1.2rem;">
+                        <h3 style="margin-bottom: 0.6rem;">Improved Summary</h3>
+                        <p style="color: var(--muted); line-height: 1.75; white-space: pre-wrap;">${result.improved_summary || ''}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('analysis-result').innerHTML = html;
+            document.getElementById('analyzer-message').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
